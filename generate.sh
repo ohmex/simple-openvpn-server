@@ -23,6 +23,8 @@ newclient () {
 
 cd /etc/openvpn/easy-rsa/
 
+./easyrsa build-client-full $client nopass
+# Generates the custom client.ovpn
 newclient "$client"
 
 echo "Content-type: text/plain"
