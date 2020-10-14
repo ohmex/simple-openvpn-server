@@ -112,13 +112,6 @@ case $option in
 		# CRL is read with each client connection, when OpenVPN is dropped to nobody
 		echo "<h3>Certificate for client <span style='color:red'>$client</span> revoked.</h3>"
 	;;
-	"get") #Add and download a client
-		./easyrsa build-client-full $client nopass
-		# Generates the custom client.ovpn
-		newclient "$client"
-		#echo "<h3>Certificate for client <span style='color:red'>$client</span> added.</h3>"
-		cat /etc/openvpn/clients/$client.ovpn
-	;;
 esac
 
 NUMBEROFCLIENTS=$(tail -n +2 /etc/openvpn/easy-rsa/pki/index.txt | grep -c "^V")
