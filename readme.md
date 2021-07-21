@@ -29,7 +29,7 @@ Otherwise, use the installer:
 1. Download the installer script.
 
 	````
-	wget https://raw.githubusercontent.com/theonemule/simple-openvpn-server/master/openvpn.sh
+	wget https://raw.githubusercontent.com/ohmex/simple-openvpn-server/master/openvpn.sh
 	````
 
 1. Make the script executable
