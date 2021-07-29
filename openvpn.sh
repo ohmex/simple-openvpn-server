@@ -266,7 +266,7 @@ chmod g+s /etc/openvpn/easy-rsa/
 #Generate a self-signed certificate for the web server
 mv /etc/lighttpd/ssl/ /etc/lighttpd/ssl.$$/
 mkdir /etc/lighttpd/ssl/
-openssl req -new -x509 -keyout /etc/lighttpd/ssl/server.pem -out /etc/lighttpd/ssl/server.pem -days 9999 -nodes -subj "/C=IN/ST=Haryana/L=Gurugram/O=BuildSupply/OU=Technology/CN=buildsupply.com"
+openssl req -new -x509 -keyout /etc/lighttpd/ssl/server.pem -out /etc/lighttpd/ssl/server.pem -days 9999 -nodes -subj "/C=IN/ST=Haryana/L=Gurugram/O=Archer/OU=Technology/CN=example.com"
 chmod 744 /etc/lighttpd/ssl/server.pem
 
 
