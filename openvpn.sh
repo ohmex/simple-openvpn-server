@@ -78,11 +78,15 @@ if [[ "$IP" = "" ]]; then
 	IP=$(wget -4qO- "http://whatismyip.akamai.com/")
 fi
 
-
-
 if [[ "$OS" = 'debian' ]]; then
 	apt-get update
 	apt-get install openvpn iptables openssl ca-certificates lighttpd -y
+
+	# Install  Let’s Encrypt essentials
+	apt-get install software-properties-common
+	add-apt-repository ppa:certbot/certbot
+	apt-get update
+
 else
 	# Else, the distro is CentOS
 	yum install epel-release -y
@@ -262,7 +266,7 @@ chmod g+s /etc/openvpn/easy-rsa/
 #Generate a self-signed certificate for the web server
 mv /etc/lighttpd/ssl/ /etc/lighttpd/ssl.$$/
 mkdir /etc/lighttpd/ssl/
-openssl req -new -x509 -keyout /etc/lighttpd/ssl/server.pem -out /etc/lighttpd/ssl/server.pem -days 9999 -nodes -subj "/C=US/ST=California/L=San Francisco/O=example.com/OU=Ops Department/CN=example.com"
+openssl req -new -x509 -keyout /etc/lighttpd/ssl/server.pem -out /etc/lighttpd/ssl/server.pem -days 9999 -nodes -subj "/C=IN/ST=Haryana/L=Gurugram/O=BuildSupply/OU=Technology/CN=buildsupply.com"
 chmod 744 /etc/lighttpd/ssl/server.pem
 
 
