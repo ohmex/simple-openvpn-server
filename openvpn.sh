@@ -79,15 +79,11 @@ if [[ "$IP" = "" ]]; then
 fi
 
 if [[ "$OS" = 'debian' ]]; then
-	apt-get update
-	apt-get install openvpn iptables openssl ca-certificates lighttpd -y
+	apt update
+	apt install openvpn iptables openssl ca-certificates lighttpd -y
 
 	# Install  Let’s Encrypt essentials
-	apt-get install software-properties-common
-	add-apt-repository ppa:certbot/certbot
-	apt-get update
-	apt-get install certbot
-
+	snap install --classic certbot 
 else
 	# Else, the distro is CentOS
 	yum install epel-release -y
