@@ -86,6 +86,7 @@ if [[ "$OS" = 'debian' ]]; then
 	apt-get install software-properties-common
 	add-apt-repository ppa:certbot/certbot
 	apt-get update
+	apt-get install certbot
 
 else
 	# Else, the distro is CentOS
@@ -264,11 +265,18 @@ chmod g+s /etc/openvpn/clients/
 chmod g+s /etc/openvpn/easy-rsa/
 
 #Generate a self-signed certificate for the web server
-mv /etc/lighttpd/ssl/ /etc/lighttpd/ssl.$$/
-mkdir /etc/lighttpd/ssl/
-openssl req -new -x509 -keyout /etc/lighttpd/ssl/server.pem -out /etc/lighttpd/ssl/server.pem -days 9999 -nodes -subj "/C=IN/ST=Haryana/L=Gurugram/O=Archer/OU=Technology/CN=example.com"
-chmod 744 /etc/lighttpd/ssl/server.pem
+#mv /etc/lighttpd/ssl/ /etc/lighttpd/ssl.$$/
+#mkdir /etc/lighttpd/ssl/
+#openssl req -new -x509 -keyout /etc/lighttpd/ssl/server.pem -out /etc/lighttpd/ssl/server.pem -days 9999 -nodes -subj "/C=IN/ST=Haryana/L=Gurugram/O=Archer/OU=Technology/CN=example.com"
+#chmod 744 /etc/lighttpd/ssl/server.pem
 
+#Generate certificate via certbot for the web server
+mkdir /etc/lighttpd/ssl/
+certbot certonly --non-interactive --agree-tos -m info@buildsupply.com --webroot -w /var/www/html -d $HOST
+cat /etc/letsencrypt/live/$HOST/cert.pem /etc/letsencrypt/live/$HOST/privkey.pem > /etc/lighttpd/ssl/web.pem
+cat /etc/letsencrypt/live/$HOST/chain.pem > /etc/lighttpd/ssl/chain.pem
+chmod 744 /etc/lighttpd/ssl/web.pem
+chmod 744 /etc/lighttpd/ssl/chain.pem
 
 #Configure the web server with the lighttpd.conf from GitHub
 mv /etc/lighttpd/lighttpd.conf /etc/lighttpd/lighttpd.conf.$$
