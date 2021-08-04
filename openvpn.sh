@@ -83,7 +83,7 @@ if [[ "$OS" = 'debian' ]]; then
 	apt install openvpn iptables openssl ca-certificates lighttpd -y
 
 	# Install  Let’s Encrypt essentials
-	snap install --classic certbot 
+	#snap install --classic certbot 
 else
 	# Else, the distro is CentOS
 	yum install epel-release -y
@@ -96,12 +96,11 @@ if [[ -d /etc/openvpn/easy-rsa/ ]]; then
 fi
 # Get easy-rsa
 
-wget -O ~/EasyRSA-3.0.8.tgz "https://github.com/OpenVPN/easy-rsa/releases/download/v3.0.8/EasyRSA-3.0.8.tgz"
-tar xzf ~/EasyRSA-3.0.8.tgz -C ~/
-mv ~/EasyRSA-3.0.8/ /etc/openvpn/
-mv /etc/openvpn/EasyRSA-3.0.8/ /etc/openvpn/easy-rsa/
+wget -O /tmp/EasyRSA-3.0.8.tgz "https://github.com/OpenVPN/easy-rsa/releases/download/v3.0.8/EasyRSA-3.0.8.tgz"
+tar xzf /tmp/EasyRSA-3.0.8.tgz -C /tmp
+mv /tmp/EasyRSA-3.0.8/ /etc/openvpn/easy-rsa/
 chown -R root:root /etc/openvpn/easy-rsa/
-rm -rf ~/EasyRSA-3.0.8.tgz
+rm -rf /tmp/EasyRSA-3.0.8.tgz
 cd /etc/openvpn/easy-rsa/
 
 # Create the PKI, set up the CA, the DH params and the server + client certificates
@@ -267,12 +266,12 @@ chmod g+s /etc/openvpn/easy-rsa/
 #chmod 744 /etc/lighttpd/ssl/server.pem
 
 #Generate certificate via certbot for the web server
-mkdir /etc/lighttpd/ssl/
-certbot certonly --non-interactive --agree-tos -m info@buildsupply.com --webroot -w /var/www/html -d $HOST
-cat /etc/letsencrypt/live/$HOST/cert.pem /etc/letsencrypt/live/$HOST/privkey.pem > /etc/lighttpd/ssl/web.pem
-cat /etc/letsencrypt/live/$HOST/chain.pem > /etc/lighttpd/ssl/chain.pem
-chmod 744 /etc/lighttpd/ssl/web.pem
-chmod 744 /etc/lighttpd/ssl/chain.pem
+#mkdir /etc/lighttpd/ssl/
+#certbot certonly --non-interactive --agree-tos -m info@buildsupply.com --webroot -w /var/www/html -d $HOST
+#cat /etc/letsencrypt/live/$HOST/cert.pem /etc/letsencrypt/live/$HOST/privkey.pem > /etc/lighttpd/ssl/web.pem
+#cat /etc/letsencrypt/live/$HOST/chain.pem > /etc/lighttpd/ssl/chain.pem
+#chmod 744 /etc/lighttpd/ssl/web.pem
+#chmod 744 /etc/lighttpd/ssl/chain.pem
 
 #Configure the web server with the lighttpd.conf from GitHub
 mv /etc/lighttpd/lighttpd.conf /etc/lighttpd/lighttpd.conf.$$
@@ -281,7 +280,6 @@ wget -O /etc/lighttpd/lighttpd.conf https://raw.githubusercontent.com/ohmex/simp
 #install the webserver scripts
 rm /var/www/html/*
 wget -O /var/www/html/index.sh https://raw.githubusercontent.com/ohmex/simple-openvpn-server/master/index.sh
-
 wget -O /var/www/html/download.sh https://raw.githubusercontent.com/ohmex/simple-openvpn-server/master/download.sh
 wget -O /var/www/html/generate.sh https://raw.githubusercontent.com/ohmex/simple-openvpn-server/master/generate.sh
 
