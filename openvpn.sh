@@ -259,12 +259,6 @@ chmod -R 777 /etc/openvpn/crl.pem
 chmod g+s /etc/openvpn/clients/
 chmod g+s /etc/openvpn/easy-rsa/
 
-#Generate a self-signed certificate for the web server
-#mv /etc/lighttpd/ssl/ /etc/lighttpd/ssl.$$/
-#mkdir /etc/lighttpd/ssl/
-#openssl req -new -x509 -keyout /etc/lighttpd/ssl/server.pem -out /etc/lighttpd/ssl/server.pem -days 9999 -nodes -subj "/C=IN/ST=Haryana/L=Gurugram/O=Archer/OU=Technology/CN=example.com"
-#chmod 744 /etc/lighttpd/ssl/server.pem
-
 #Configure the web server with the lighttpd.conf from GitHub
 mv /etc/lighttpd/lighttpd.conf /etc/lighttpd/lighttpd.conf.$$
 wget -O /etc/lighttpd/lighttpd.conf https://raw.githubusercontent.com/ohmex/simple-openvpn-server/master/lighttpd.conf
