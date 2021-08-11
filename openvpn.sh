@@ -138,8 +138,21 @@ ifconfig-pool-persist ipp.txt" > /etc/openvpn/server.conf
 echo 'push "redirect-gateway def1 bypass-dhcp"' >> /etc/openvpn/server.conf
 
 # DNS
-echo "push \"dhcp-option DNS $DNS1\"" >> /etc/openvpn/server.conf
-echo "push \"dhcp-option DNS $DNS2\"" >> /etc/openvpn/server.conf
+#echo "push \"dhcp-option DNS $DNS1\"" >> /etc/openvpn/server.conf
+#echo "push \"dhcp-option DNS $DNS2\"" >> /etc/openvpn/server.conf
+
+# New DNS
+# Locate the proper resolv.conf needed for systems running systemd-resolved
+if grep -q '^nameserver 127.0.0.53' "/etc/resolv.conf"; then
+	resolv_conf="/run/systemd/resolve/resolv.conf"
+else
+	resolv_conf="/etc/resolv.conf"
+fi
+# Obtain the resolvers from resolv.conf and use them for OpenVPN
+grep -v '^#\|^;' "$resolv_conf" | grep '^nameserver' | grep -oE '[0-9]{1,3}(\.[0-9]{1,3}){3}' | while read line; do
+	echo "push \"dhcp-option DNS $line\"" >> /etc/openvpn/server/server.conf
+done
+
 echo "keepalive 10 120
 cipher AES-256-CBC
 
