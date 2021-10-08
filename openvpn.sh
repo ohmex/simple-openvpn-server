@@ -8,7 +8,6 @@ PROTOCOL=udp
 PORT=1194
 HOST=$(wget -4qO- "http://whatismyip.akamai.com/")
 
-
 for i in "$@"
 do
 	case $i in
@@ -137,11 +136,7 @@ server 10.8.0.0 255.255.255.0
 ifconfig-pool-persist ipp.txt" > /etc/openvpn/server.conf
 echo 'push "redirect-gateway def1 bypass-dhcp"' >> /etc/openvpn/server.conf
 
-# DNS
-#echo "push \"dhcp-option DNS $DNS1\"" >> /etc/openvpn/server.conf
-#echo "push \"dhcp-option DNS $DNS2\"" >> /etc/openvpn/server.conf
-
-# New DNS
+# When connected to VPN clients to use its DNS servers for resolution
 # Locate the proper resolv.conf needed for systems running systemd-resolved
 if grep -q '^nameserver 127.0.0.53' "/etc/resolv.conf"; then
 	resolv_conf="/run/systemd/resolve/resolv.conf"
@@ -155,7 +150,6 @@ done
 
 echo "keepalive 10 120
 cipher AES-256-CBC
-
 user nobody
 group $GROUPNAME
 persist-key
@@ -237,21 +231,18 @@ else
 	fi
 fi
 
-# Try to detect a NATed connection and ask about it to potential LowEndSpirit users
-
-
 # client-common.txt is created so we have a template to add further users later
 echo "client
 dev tun
 proto $PROTOCOL
-sndbuf 0
-rcvbuf 0
 remote $HOST $PORT
 resolv-retry infinite
 nobind
 persist-key
 persist-tun
 remote-cert-tls server
+sndbuf 0
+rcvbuf 0
 cipher AES-256-CBC
 setenv opt block-outside-dns
 key-direction 1
@@ -260,9 +251,6 @@ verb 3" > /etc/openvpn/client-common.txt
 # Generates the custom client.ovpn
 mv /etc/openvpn/clients/ /etc/openvpn/clients.$$/
 mkdir /etc/openvpn/clients/
-
-#Setup the web server to use an self signed cert
-# mkdir /etc/openvpn/clients/
 
 #Set permissions for easy-rsa and open vpn to be modified by the web user.
 chown -R www-data:www-data /etc/openvpn/easy-rsa
