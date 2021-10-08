@@ -145,7 +145,7 @@ else
 fi
 # Obtain the resolvers from resolv.conf and use them for OpenVPN
 grep -v '^#\|^;' "$resolv_conf" | grep '^nameserver' | grep -oE '[0-9]{1,3}(\.[0-9]{1,3}){3}' | while read line; do
-	echo "push \"dhcp-option DNS $line\"" >> /etc/openvpn/server/server.conf
+	echo "push \"dhcp-option DNS $line\"" >> /etc/openvpn/server.conf
 done
 
 echo "keepalive 10 120
