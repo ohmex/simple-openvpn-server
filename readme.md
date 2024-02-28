@@ -7,7 +7,7 @@ There are dedicated appliances for OpenVPN that work well for enterprises, but f
 
 A special thanks goes out to the folks behind [openvpn-install](https://github.com/Nyr/openvpn-install) for their wonderful project, which serves as an interactive installer on the command line. Much of the heavy lifting for the installer here is from the script there. 
 
-The scripts assumes that there is NOT an instance of OpenVPN already installed on the machine and that port 443 is not in use by another web server for HTTPS. Likewise, this script was built for Redhat 6+ and current Debian/Ubuntu distros.
+The scripts assumes that there is NOT an instance of OpenVPN already installed on the machine and that port 443 is not in use by another web server for HTTPS. Likewise, this script was built for current Debian/Ubuntu distros.
 
 
 ## Installing OpenVPN
@@ -62,6 +62,8 @@ Otherwise, use the installer:
 	**vpnport** -- The port to be used by OpenVPN. 1194 may be blocked by some firewalls, so this is customizable. The default port is **1194**.
 
 	**protocol** -- The protocol to be used by OpenVPN. This accepts **udp** or tcp. The default is **udp**.
+	
+	**protocol** -- The email to be used by NGINX for Let's Encrypt. 
 
 	**host** -- The host name of the server. The script attempts to detect the external IP of your server if the host is not specified. ***It is highly recommended that you use a host name if your sever is not using a static IP address***. You can get a free dynamic DNS account and use a dynamic DNS updater that keeps the DNS records for your server up to date in the event that your IPa address changes.
 

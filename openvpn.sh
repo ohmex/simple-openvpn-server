@@ -5,6 +5,7 @@ ADMINPASSWORD="secret"
 DNS1="8.8.8.8"
 DNS2="8.8.4.4"
 PROTOCOL=udp
+EMAIL="example@example.com"
 PORT=1194
 HOST=$(wget -4qO- "http://whatismyip.akamai.com/")
 
@@ -29,6 +30,9 @@ do
 		--host=*)
 		HOST="${i#*=}"
 		;;
+		--email=*)
+		EMAIL="${i#*=}"
+		;;		
 		*)
 		;;
 	esac
@@ -52,21 +56,13 @@ if [[ ! -e /dev/net/tun ]]; then
 	exit 3
 fi
 
-if grep -qs "CentOS release 5" "/etc/redhat-release"; then
-	echo "CentOS 5 is too old and not supported"
-	exit 4
-fi
 
 if [[ -e /etc/debian_version ]]; then
 	OS=debian
 	GROUPNAME=nogroup
 	RCLOCAL='/etc/rc.local'
-elif [[ -e /etc/centos-release || -e /etc/redhat-release ]]; then
-	OS=centos
-	GROUPNAME=nobody
-	RCLOCAL='/etc/rc.d/rc.local'
 else
-	echo "Looks like you aren't running this installer on Debian, Ubuntu or CentOS"
+	echo "Looks like you aren't running this installer on Debian or Ubuntu"
 	exit 5
 fi
 
@@ -77,17 +73,8 @@ if [[ "$IP" = "" ]]; then
 	IP=$(wget -4qO- "http://whatismyip.akamai.com/")
 fi
 
-if [[ "$OS" = 'debian' ]]; then
-	apt update
-	apt install openvpn iptables openssl ca-certificates lighttpd -y
-
-	# Install  Let’s Encrypt essentials
-	#snap install --classic certbot 
-else
-	# Else, the distro is CentOS
-	yum install epel-release -y
-	yum install openvpn iptables openssl wget ca-certificates lighttpd -y
-fi
+apt-get update
+apt-get install openvpn iptables openssl fcgiwrap ca-certificates certbot python3-certbot-nginx apache2-utils nginx -y
 
 # An old version of easy-rsa was available by default in some openvpn packages
 if [[ -d /etc/openvpn/easy-rsa/ ]]; then
@@ -95,11 +82,11 @@ if [[ -d /etc/openvpn/easy-rsa/ ]]; then
 fi
 # Get easy-rsa
 
-wget -O /tmp/EasyRSA-3.0.8.tgz "https://github.com/OpenVPN/easy-rsa/releases/download/v3.0.8/EasyRSA-3.0.8.tgz"
-tar xzf /tmp/EasyRSA-3.0.8.tgz -C /tmp
-mv /tmp/EasyRSA-3.0.8/ /etc/openvpn/easy-rsa/
+wget -O /tmp/EasyRSA-3.1.7.tgz "https://github.com/OpenVPN/easy-rsa/releases/download/v3.1.7/EasyRSA-3.1.7.tgz"
+tar xzf /tmp/EasyRSA-3.1.7.tgz -C /tmp
+mv /tmp/EasyRSA-3.1.7/ /etc/openvpn/easy-rsa/
 chown -R root:root /etc/openvpn/easy-rsa/
-rm -rf /tmp/EasyRSA-3.0.8.tgz
+rm -rf /tmp/EasyRSA-3.1.7.tgz
 cd /etc/openvpn/easy-rsa/
 
 # Create the PKI, set up the CA, the DH params and the server + client certificates
@@ -150,6 +137,7 @@ done
 
 echo "keepalive 10 120
 cipher AES-256-CBC
+
 user nobody
 group $GROUPNAME
 persist-key
@@ -214,35 +202,30 @@ if hash sestatus 2>/dev/null; then
 fi
 
 # And finally, restart OpenVPN
-if [[ "$OS" = 'debian' ]]; then
-	# Little hack to check for systemd
-	if pgrep systemd-journal; then
-		systemctl restart openvpn@server.service
-	else
-		/etc/init.d/openvpn restart
-	fi
+
+# Little hack to check for systemd
+if pgrep systemd-journal; then
+	systemctl restart openvpn@server.service
 else
-	if pgrep systemd-journal; then
-		systemctl restart openvpn@server.service
-		systemctl enable openvpn@server.service
-	else
-		service openvpn restart
-		chkconfig openvpn on
-	fi
+	/etc/init.d/openvpn restart
 fi
+
+
+# Try to detect a NATed connection and ask about it to potential LowEndSpirit users
+
 
 # client-common.txt is created so we have a template to add further users later
 echo "client
 dev tun
 proto $PROTOCOL
+sndbuf 0
+rcvbuf 0
 remote $HOST $PORT
 resolv-retry infinite
 nobind
 persist-key
 persist-tun
 remote-cert-tls server
-sndbuf 0
-rcvbuf 0
 cipher AES-256-CBC
 setenv opt block-outside-dns
 key-direction 1
@@ -252,6 +235,9 @@ verb 3" > /etc/openvpn/client-common.txt
 mv /etc/openvpn/clients/ /etc/openvpn/clients.$$/
 mkdir /etc/openvpn/clients/
 
+#Setup the web server to use an self signed cert
+# mkdir /etc/openvpn/clients/
+
 #Set permissions for easy-rsa and open vpn to be modified by the web user.
 chown -R www-data:www-data /etc/openvpn/easy-rsa
 chown -R www-data:www-data /etc/openvpn/clients/
@@ -260,20 +246,35 @@ chmod -R 777 /etc/openvpn/crl.pem
 chmod g+s /etc/openvpn/clients/
 chmod g+s /etc/openvpn/easy-rsa/
 
+#Generate a self-signed certificate for the web server
+# mv /etc4/lighttpd/ssl/ /etc/lighttpd/ssl.$$/
+# mkdir /etc/nginx/ssl/
+# openssl req -x509 -nodes -days 9999 -newkey rsa:2048 -keyout /etc/nginx/ssl/nginx.key -out /etc/nginx/ssl/nginx.crt -subj "/C=US/ST=California/L=San Francisco/O=example.com/OU=Ops Department/CN=example.com"
+
+
 #Configure the web server with the lighttpd.conf from GitHub
-mv /etc/lighttpd/lighttpd.conf /etc/lighttpd/lighttpd.conf.$$
-wget -O /etc/lighttpd/lighttpd.conf https://raw.githubusercontent.com/ohmex/simple-openvpn-server/master/lighttpd.conf
+mv  /etc/nginx/sites-available/default /etc/nginx/sites-available/default.$$
+wget -O /etc/nginx/sites-available/default https://raw.githubusercontent.com/theonemule/simple-openvpn-server/master/default
+
+sed -i "s/server_name  example.com;/server_name  $HOST;/g" /etc/nginx/sites-available/default
+
 
 #install the webserver scripts
 rm /var/www/html/*
+mkdir -p /var/www/html/
 wget -O /var/www/html/index.sh https://raw.githubusercontent.com/ohmex/simple-openvpn-server/master/index.sh
 wget -O /var/www/html/download.sh https://raw.githubusercontent.com/ohmex/simple-openvpn-server/master/download.sh
 wget -O /var/www/html/generate.sh https://raw.githubusercontent.com/ohmex/simple-openvpn-server/master/generate.sh
-
 chown -R www-data:www-data /var/www/html/
+chmod +x /var/www/html/*
 
 #set the password file for the WWW logon
-echo "admin:$ADMINPASSWORD" >> /etc/lighttpd/.lighttpdpassword
+htpasswd -b -c /etc/nginx/.htpasswd admin $ADMINPASSWORD
+
+
+#Obtain a Certificate from Let's Encrypt
+certbot run -d $HOST --agree-tos --nginx -m $EMAIL -n
+systemctl restart apache2
 
 #restart the web server
-service lighttpd restart
+systemctl restart nginx

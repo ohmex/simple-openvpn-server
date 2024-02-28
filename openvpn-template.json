@@ -14,6 +14,12 @@
         "description":"Password for the Virtual Machine."
       }
     },
+    "sslEmail": {
+      "type": "string",
+      "metadata": {
+        "description": "Email for Let's Encrypt."
+      }
+    },	  
     "dnsNameForPublicIP":{
       "type":"string",
       "metadata":{
@@ -24,9 +30,9 @@
   "variables":{
     "storageAccountName":"[concat(uniquestring(resourceGroup().id),'storage')]",
     "imagePublisher":"Canonical",
-    "imageOffer":"UbuntuServer",
+    "imageOffer": "0001-com-ubuntu-server-focal",
     "OSDiskName":"openvpn-vhd",
-    "imageSKU":"18.04-LTS",
+    "imageSKU": "20_04-lts-gen2",
     "nicName":"openvpnNic",
     "addressPrefix":"10.0.0.0/16",
     "subnetName":"openvpnSubnet",
@@ -176,7 +182,7 @@
         "autoUpgradeMinorVersion":true,
         "settings":{
           "fileUris":"[split('https://raw.githubusercontent.com/ohmex/simple-openvpn-server/master/openvpn.sh', ' ')]",
-          "commandToExecute":"[concat('bash openvpn.sh --host=', parameters('dnsNameForPublicIP'), '.', resourceGroup().location, '.cloudapp.azure.com --adminpassword=', parameters('adminPassword'))]"
+				"commandToExecute": "[concat('bash openvpn.sh --host=', parameters('dnsNameForPublicIP'), '.', resourceGroup().location, '.cloudapp.azure.com --adminpassword=', parameters('adminPassword'), ' --email=', parameters('sslEmail'))]"
         }
       }
     },
@@ -206,7 +212,10 @@
             "version":"latest"
           },
           "osDisk":{
-            "createOption":"FromImage"
+            "createOption": "FromImage",
+		"managedDisk": {
+		    "storageAccountType": "Standard_LRS"
+		}		  
           }
         },
         "networkProfile":{
