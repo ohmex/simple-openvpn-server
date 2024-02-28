@@ -83,17 +83,17 @@ fi
 # Get easy-rsa
 
 wget -O /tmp/EasyRSA-3.1.7.tgz "https://github.com/OpenVPN/easy-rsa/releases/download/v3.1.7/EasyRSA-3.1.7.tgz"
-tar xzf /tmp/EasyRSA-3.1.7.tgz -C /tmp
-mv /tmp/EasyRSA-3.1.7/ /etc/openvpn/easy-rsa/
-chown -R root:root /etc/openvpn/easy-rsa/
+tar xzf /tmp/EasyRSA-3.1.7.tgz -C /tmp/
+mv /tmp/EasyRSA-3.1.7 /etc/openvpn/easy-rsa
+chown -R root:root /etc/openvpn/easy-rsa
 rm -rf /tmp/EasyRSA-3.1.7.tgz
-cd /etc/openvpn/easy-rsa/
+cd /etc/openvpn/easy-rsa
 
 # Create the PKI, set up the CA, the DH params and the server + client certificates
-./easyrsa init-pki
+./easyrsa --batch init-pki
 ./easyrsa --batch build-ca nopass
 ./easyrsa gen-dh
-./easyrsa build-server-full server nopass
+./easyrsa --batch build-server-full server nopass
 
 # ./easyrsa build-client-full $CLIENT nopass
 ./easyrsa gen-crl
