@@ -94,7 +94,7 @@ cd /etc/openvpn/easy-rsa/
 
 case $option in
 	"add") #Add a client
-		./easyrsa build-client-full $client nopass
+		./easyrsa --batch build-client-full $client nopass
 		# Generates the custom client.ovpn
 		newclient "$client"
 		echo "<h3>Certificate for client <span style='color:red'>$client</span> added.</h3>"
