@@ -82,11 +82,11 @@ if [[ -d /etc/openvpn/easy-rsa/ ]]; then
 fi
 # Get easy-rsa
 
-wget -O /tmp/EasyRSA-3.1.7.tgz "https://github.com/OpenVPN/easy-rsa/releases/download/v3.1.7/EasyRSA-3.1.7.tgz"
-tar xzf /tmp/EasyRSA-3.1.7.tgz -C /tmp/
-mv /tmp/EasyRSA-3.1.7 /etc/openvpn/easy-rsa
+wget -O /tmp/EasyRSA-3.0.8.tgz "https://github.com/OpenVPN/easy-rsa/releases/download/v3.0.8/EasyRSA-3.0.8.tgz"
+tar xzf /tmp/EasyRSA-3.0.8.tgz -C /tmp/
+mv /tmp/EasyRSA-3.0.8 /etc/openvpn/easy-rsa
 chown -R root:root /etc/openvpn/easy-rsa
-rm -rf /tmp/EasyRSA-3.1.7.tgz
+rm -rf /tmp/EasyRSA-3.0.8.tgz
 cd /etc/openvpn/easy-rsa
 
 # Create the PKI, set up the CA, the DH params and the server + client certificates
